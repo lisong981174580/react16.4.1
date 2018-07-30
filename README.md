@@ -1,6 +1,7 @@
 ## React16.4.1新特性
 #### React.createRef()
 > https://segmentfault.com/a/1190000015113359
+
 > React V16版本新增一个API：React.createRef(); 通过这个API，我们可以先创建一个ref变量，然后再将这个变量赋值给组件声明中ref属性就好了。
 
 ```
@@ -61,6 +62,7 @@ class CustomTextInput extends React.Component {
 
 #### 高阶组件和rest参数(不是新特性)
 > HOC（higher-order components）高阶组件，简单的说，就是通过组件包裹的方式来提到代码复用，高阶组件就是一个函数，且该函数接受一个组件作为参数，并返回一个新的组件。
+
 > rest参数：  Rest就是为解决传入的参数数量不一定， rest parameter(Rest 参数) 本身就是数组，数组的相关的方法都可以用。
 
 ```
@@ -87,6 +89,7 @@ function logProps(Component) {
 
 #### React.createContext()
 > https://segmentfault.com/a/1190000013365874?utm_source=tag-newest
+
 > Context 旨在共享一个组件树内可被视为 “全局” 的数据，例如当前经过身份验证的用户，主题或首选语言等
 ```
 // Context lets us pass a value deep into the component tree
@@ -132,6 +135,7 @@ function ThemedButton(props) {
 
 ##### Provider
 > React组件允许 Consumer(使用者) 订阅 context 的改变。
+
 > 接受一个 value 属性传递给 Provider(提供则) 的后代的 Consumer(使用者) 。 一个 Provider 可以连接到许多 Consumers 。 Providers 可以被嵌套以覆盖树中更深层次的值。
 
 ```
@@ -140,6 +144,7 @@ function ThemedButton(props) {
 ```
 ##### Consumer
 > 一个可以订阅 context 变化的 React 组件。
+
 > 需要接收一个 函数作为子节点。 该函数接收当前 context 值并返回一个 React 节点。 传递给函数的 value 参数将等于组件树中上层这个 context 最接近的 Provider 的 value 属性。 如果上层没有提供这个 context 的 Provider ，value参数将等于传递给 createContext() 的 defaultValue 。
 
 ```
@@ -173,8 +178,11 @@ export function withTheme(Component) {
 
 ####  create-react-app按需加载以及部署
 > create-react-app按需加载以及部署:https://blog.csdn.net/hesongGG/article/details/78109631
+
 > webpack4利用import动态加载的一些说明:https://blog.csdn.net/sunq1982/article/details/80540548
+
 > 理解 JavaScript 的 async/await:https://segmentfault.com/a/1190000007535316
+
 > async/await的使用以及注意事项:https://blog.csdn.net/juhaotian/article/details/78934097
 ```
 import React, { Component } from "react";
