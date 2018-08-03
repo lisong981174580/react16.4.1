@@ -1,4 +1,5 @@
 ## React16.4.1新特性
+
 #### React.createRef()
 > https://segmentfault.com/a/1190000015113359
 
@@ -60,7 +61,57 @@ class CustomTextInput extends React.Component {
 
 ```
 
+#### 你不能在函数式组件上使用 ref 属性，因为它们没有实例,然而你可以 在函数式组件内部使用 ref 来引用一个 DOM 元素或者 类(class)组件：
+```
+function CustomTextInput(props) {
+  // textInput必须在这里声明，所以 ref 回调可以引用它
+  let textInput = null;
+
+  function handleClick() {
+    textInput.focus();
+  }
+
+  return (
+    <div>
+      <input
+        type="text"
+        ref={(input) => { textInput = input; }} />
+
+      <input
+        type="button"
+        value="Focus the text input"
+        onClick={handleClick}
+      />
+    </div>
+  );  
+}
+
+```
+#### 你可以在组件间传递回调形式的 refs，就像你可以传递通过 React.createRef() 创建的对象 refs 一样。
+
+```
+function CustomTextInput(props) {
+  return (
+    <div>
+      <input ref={props.inputRef} />
+    </div>
+  );
+}
+
+class Parent extends React.Component {
+  render() {
+    return (
+      <CustomTextInput
+        inputRef={el => this.inputElement = el}
+      />
+    );
+  }
+}
+
+```
 #### 高阶组件和rest参数(不是新特性)
+> https://segmentfault.com/a/1190000010371752
+
 > HOC（higher-order components）高阶组件，简单的说，就是通过组件包裹的方式来提到代码复用，高阶组件就是一个函数，且该函数接受一个组件作为参数，并返回一个新的组件。
 
 > rest参数：  Rest就是为解决传入的参数数量不一定， rest parameter(Rest 参数) 本身就是数组，数组的相关的方法都可以用。
@@ -221,5 +272,219 @@ export default function asyncComponent(importComponent) {
 const AsyncUser = asyncComponent(() => import("./User"));
 ...
 <Route path="/users" component={AsyncUser}/>
+
+```
+#### 生命周期的变化
+> https://github.com/lisong981174580/blogs.git
+
+#### 错误边界(Error Boundaries)
+> 如果一个类组件定义了一个名为 componentDidCatch(error, info): 的新生命周期方法，它将成为一个错误边界：error 是被抛出的错误,info 是一个含有 componentStack 属性的对象。这一属性包含了错误期间关于组件的堆栈信息。
+
+错误边界 无法 捕获如下错误:
+* 事件处理 （了解更多）
+* 异步代码 （例如 setTimeout 或 requestAnimationFrame 回调函数）
+* 服务端渲染
+* 错误边界自身抛出来的错误 （而不是其子组件）
+
+```
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  componentDidCatch(error, info) {
+    // Display fallback UI
+    this.setState({ hasError: true });
+    // You can also log the error to an error reporting service
+    logErrorToMyService(error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return <h1>Something went wrong.</h1>;
+    }
+    return this.props.children;
+  }
+}
+
+```
+
+而后你可以像一个普通的组件一样使用：
+
+```
+<ErrorBoundary>
+  <MyWidget />
+</ErrorBoundary>
+
+```
+> componentDidCatch() 方法机制类似于 JavaScript catch {}，但是针对组件。仅有类组件可以成为错误边界。实际上，大多数时间你仅想要定义一个错误边界组件并在你的整个应用中使用。
+
+#### 包裹标签 React.Fragment
+
+> 例如在 <tbody></tbody> 标签中，我们只能放置 <tr></tr>标签，假如我们同时有多个 <tr> 标签被赋值给一个 JSX 变量，那么在 React 里也有类似的功能：<React.Fragment> 标签。
+
+  ```
+  let DOM = (<React.Fragment>
+    <tr>
+        <td>1</td>
+    </tr>
+    <tr>
+        <td>2</td>
+    </tr>
+  </React.Fragment>)
+
+  let Component = <table>
+      <tbody>
+      {DOM}
+      </tbody>
+  </table>
+
+```
+
+####  MySQL的简单查询语句
+
+> https://www.cnblogs.com/cuikang/p/6054046.html
+
+
+#### 利用shouldComponentUpdate钩子函数优化react性能以及引入immutable库的必要性
+
+> https://www.cnblogs.com/penghuwan/p/6707254.html
+
+#### 插槽(Portals)
+
+> 本人感觉在做对话框或者冒泡用法的时候很有用
+
+> Portals 提供了一种很好的方法，将子节点渲染到父组件 DOM 层次结构之外的 DOM 节点。
+```
+ReactDOM.createPortal(child, container)
+
+```
+
+> 第一个参数（child）是任何可渲染的 React 子元素，例如一个元素，字符串或 片段(fragment)。第二个参数（container）则是一个 DOM 元素。
+
+```
+通常来说，当你从组件的 render 方法返回一个元素时，它将被作为子元素被装载到最近父节点 DOM 中：
+
+render() {
+  // React 装载一个新的 div，并将 children 渲染到这个 div 中
+  return (
+    <div>
+      {this.props.children}
+    </div>
+  );
+}
+
+然而，有时候将子元素插入到 DOM 节点的其他位置会有用的：
+
+render() {
+  // React *不* 会创建一个新的 div。 它把 children 渲染到 `domNode` 中。
+  // `domNode` 可以是任何有效的 DOM 节点，不管它在 DOM 中的位置。
+  return ReactDOM.createPortal(
+    this.props.children,
+    domNode,
+  );
+}
+
+对于 portal 的一个典型用例是当父组件有 overflow: hidden 或 z-index 样式，但你需要子组件能够在视觉上 “跳出(break out)” 其容器。例如，对话框、hovercards以及提示框：
+记住这点非常重要，当在使用 portals 时，你需要确保遵循合适的可访问指南。
+
+```
+#### 使用 PropTypes 进行类型检查
+
+> 要在组件中进行类型检测，你可以赋值 propTypes 属性。
+
+```
+import PropTypes from 'prop-types';
+
+class Greeting extends React.Component {
+  render() {
+    return (
+      <h1>Hello, {this.props.name}</h1>
+    );
+  }
+}
+
+Greeting.propTypes = {
+  name: PropTypes.string
+};
+
+```
+
+> 使用 PropTypes.element ，你可以指定仅将单一子元素传递给组件，作为子节点。
+
+```
+import PropTypes from 'prop-types';
+
+class MyComponent extends React.Component {
+  render() {
+    // 这里必须是一个元素，否则会发出警告。
+    const children = this.props.children;
+    return (
+      <div>
+        {children}
+      </div>
+    );
+  }
+}
+
+MyComponent.propTypes = {
+  children: PropTypes.element.isRequired
+};
+
+```
+
+#### 默认的 prop 值
+
+> 你可以通过赋值特定的 defaultProps 属性为 props 定义默认值：
+
+```
+class Greeting extends React.Component {
+  render() {
+    return (
+      <h1>Hello, {this.props.name}</h1>
+    );
+  }
+}
+
+// 指定 props 的默认值：
+Greeting.defaultProps = {
+  name: 'Stranger'
+};
+
+// 渲染为 "Hello, Stranger":
+ReactDOM.render(
+  <Greeting />,
+  document.getElementById('example')
+);
+
+```
+
+#### static getDerivedStateFromProps()
+
+
+```
+class EmailInput extends Component {
+  state = {
+    email: this.props.defaultEmail,
+    prevPropsUserID: this.props.userID
+  };
+
+  static getDerivedStateFromProps(props, state) {
+    // Any time the current user changes,
+    // Reset any parts of state that are tied to that user.
+    // In this simple example, that's just the email.
+    if (props.userID !== state.prevPropsUserID) {
+      return {
+        prevPropsUserID: props.userID,
+        email: props.defaultEmail
+      };
+    }
+    return null;
+  }
+
+  
+}
 
 ```
