@@ -488,3 +488,46 @@ class EmailInput extends Component {
 }
 
 ```
+
+#### getSnapshotBeforeUpdate()
+
+> getSnapshotBeforeUpdate() 在最近一次的渲染输出被提交之前调用。它使您的组件能够在DOM发生潜在变化之前捕获一些信息（例如滚动位置）。此生命周期返回的任何值将作为参数传递给componentDidUpdate()。
+
+这个用例并不常见， 但它可能会出现在需要以特殊方式处理滚动位置的聊天线程之类的UI中。
+
+```
+class ScrollingList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.listRef = React.createRef();
+  }
+
+  getSnapshotBeforeUpdate(prevProps, prevState) {
+    // Are we adding new items to the list?
+    // Capture the scroll position so we can adjust scroll later.
+    if (prevProps.list.length < this.props.list.length) {
+      const list = this.listRef.current;
+      return list.scrollHeight - list.scrollTop;
+    }
+    return null;
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    // If we have a snapshot value, we've just added new items.
+    // Adjust scroll so these new items don't push the old ones out of view.
+    // (snapshot here is the value returned from getSnapshotBeforeUpdate)
+    if (snapshot !== null) {
+      const list = this.listRef.current;
+      list.scrollTop = list.scrollHeight - snapshot;
+    }
+  }
+
+  render() {
+    return (
+      <div ref={this.listRef}>{/* ...contents... */}</div>
+    );
+  }
+}
+
+```
+> 在上面的例子中，读取 getSnapshotBeforeUpdate 中的scrollHeight属性是很重要的，因为在 “render” 阶段生命周期（比如render）和 “commit（提交）” 阶段生命周期之间可能存在延迟（比如getSnapshotBeforeUpdate和componentDidUpdate）。
