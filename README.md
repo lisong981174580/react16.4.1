@@ -531,3 +531,31 @@ class ScrollingList extends React.Component {
 
 ```
 > 在上面的例子中，读取 getSnapshotBeforeUpdate 中的scrollHeight属性是很重要的，因为在 “render” 阶段生命周期（比如render）和 “commit（提交）” 阶段生命周期之间可能存在延迟（比如getSnapshotBeforeUpdate和componentDidUpdate）。
+
+
+#### reactjs中的ajax写在componentwillmount中不是更好吗？
+
+##### 描述：
+
+* 官方建议把ajax写到componentdidmount中，
+
+*　在render之前，在componentwillmount中执行setState不会重新render
+
+* 但是如果写在componentwillmount中的setState在render之后执行，比如设置了定时器，setState后，也会造成重新render
+
+* 写在componentdidmount中的ajax，一定是在第一次render之后再render的
+
+##### 问题：
+
+* 既然如上所述，那把ajax写在componentwillmount中不是更好吗？
+
+##### 理由：
+
+* 如果ajax的执行在render之前得到了值，并setState，那就执行一次render。
+
+* 如果在第一次render之后得到了值，那就如同componentdidmount一样再次render就行，这样有可能还省去一些render。
+
+* 虽然reactjs的diff算法很快，但两次的render肯定没有一次效率高
+
+####　clientHeight , scrollHeight , offsetHeight之间的区别及兼容方案
+>　https://www.cnblogs.com/nanshanlaoyao/p/5964730.html
